@@ -17,7 +17,8 @@ class AnalyzeRequest(BaseModel):
 def health(): return {"status":"ok","service":"agentone-intelligence","version":"0.1.0"}
 @app.post("/v1/analyze")
 async def analyze(req: AnalyzeRequest,x_api_key: str|None=Header(default=None)):
-    if KEY and x_api_key!=KEY: raise HTTPException(401,"Unauthorized")
+    if not KEY: raise HTTPException(503,"Service API key is not configured.")
+    if x_api_key!=KEY: raise HTTPException(401,"Unauthorized")
     try: url=safe_target(str(req.url))
     except ValueError as e: raise HTTPException(400,str(e))
     try: crawl=await crawl_site(url,req.max_pages or LIMIT,TIMEOUT)
