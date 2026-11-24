@@ -20,3 +20,22 @@ def test_profile_extracts_signals_and_evidence():
     assert "hello@sample.com" in result["contact_observations"]["emails"]
     assert result["pricing_observations"] == ["$250"]
     assert result["social_profiles"] == ["https://instagram.com/sample"]
+
+
+def test_schema_org_name_is_preferred_over_page_title():
+    pages = [{"url": "https://sample.com", "title": "Home | Sample",
+              "text": "Professional services", "meta_description": "A business",
+              "json_ld": [{"@context": "https://schema.org", "@type": "LocalBusiness", "name": "Sample & Sons"}],
+              "emails": [], "phones": [], "price_mentions": [], "external_links": [], "location_observations": []}]
+    result = build_profile("https://sample.com", pages)
+    assert result["business_name"] == "Sample & Sons"
+    assert result["business_name_source"] == "structured_data"
+
+
+def test_social_domain_matching_rejects_lookalike_domains():
+    pages = [{"url": "https://sample.com", "title": "Sample", "text": "",
+              "meta_description": None, "json_ld": [], "emails": [], "phones": [],
+              "price_mentions": [], "location_observations": [],
+              "external_links": ["https://instagram.com/sample", "https://instagram.com.evil.test/fake"]}]
+    result = build_profile("https://sample.com", pages)
+    assert result["social_profiles"] == ["https://instagram.com/sample"]
