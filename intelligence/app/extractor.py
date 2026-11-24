@@ -41,10 +41,14 @@ def parse_page(url: str, html: str) -> dict:
     text=tree.body.text(separator=" ",strip=True) if tree.body else tree.text(separator=" ",strip=True)
     text=re.sub(r"\s+"," ",text)[:30000]
     links=[]
+    external_links=[]
     for a in tree.css("a[href]"):
         dest=urljoin(url,a.attributes.get("href",""))
-        if urlparse(dest).hostname==urlparse(url).hostname and urlparse(dest).scheme in {"http","https"}:
-            links.append(dest.split("#")[0])
+        if urlparse(dest).scheme in {"http","https"}:
+            if urlparse(dest).hostname==urlparse(url).hostname:
+                links.append(dest.split("#")[0])
+            else:
+                external_links.append(dest.split("#")[0])
     emails=sorted(set(EMAIL_RE.findall(text)))
     phones=sorted(set(m.strip() for m in PHONE_RE.findall(text)))
     prices=sorted(set(PRICE_RE.findall(text)))[:50]
@@ -52,7 +56,7 @@ def parse_page(url: str, html: str) -> dict:
       "meta_description":desc.attributes.get("content") if desc else None,
       "canonical":canonical.attributes.get("href") if canonical else None,
       "has_mobile_viewport":bool(viewport),"headings":headings,
-      "text":text,"internal_links":sorted(set(links)),"emails":emails,
+      "text":text,"internal_links":sorted(set(links)),"external_links":sorted(set(external_links)),"location_observations":[],"emails":emails,
       "phones":phones[:25],"price_mentions":prices,"json_ld":jsonld[:20]}
 def categorize(text: str) -> list[dict]:
     low=text.lower(); out=[]
