@@ -16,7 +16,7 @@ AgentOne is a universal business intelligence and prospecting platform. Initial 
 2. Clone and enter the repository on `main`.
 3. Copy `.env.example` to `.env`, set a long random `API_KEY` and strong `POSTGRES_PASSWORD`.
 4. Run `docker compose up --build -d`.
-5. Health checks: API `http://localhost:8080/health`; intelligence `http://localhost:8081/health`.
+5. Health check: API `http://localhost:8080/health`. Python intelligence is internal to the Docker network (container healthcheck runs internally).
 6. POST `http://localhost:8080/v1/analyze` with JSON `{"url":"https://example.com"}` and header `x-api-key: <API_KEY>`.
 
 ## Tests
