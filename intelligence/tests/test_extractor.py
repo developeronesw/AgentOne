@@ -7,3 +7,10 @@ def test_html_extracts_basics():
     assert any("/about" in x for x in p["internal_links"])
 def test_category_signal():
     assert any(x["category"]=="web development" for x in categorize("website design and web development"))
+
+
+def test_external_social_links_are_separated():
+    html = "<html><body><a href='https://instagram.com/example'>Instagram</a><a href='/services'>Services</a></body></html>"
+    page = parse_page("https://example.com", html)
+    assert "https://instagram.com/example" in page["external_links"]
+    assert "https://example.com/services" in page["internal_links"]
